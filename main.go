@@ -7,17 +7,37 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 )
 
-func main() {
+func main() {https://www.youtube.com/watch?v=hQApf_JdxQk
 	listenAddr := os.Getenv("LISTEN_ADDR")
 	addr := listenAddr + `:` + os.Getenv("PORT")
-
 	http.HandleFunc("/watch", stream)
+	http.HandleFunc("/view", viewHandler) //POST Reques
 	log.Printf("starting server at %s", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-----------viewHandler------------------")
+
+	switch r.Method {
+	case "GET":
+		http.ServeFile(w, r, "form.html")
+	case "POST":
+		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
+		fmt.Println("-----------POST------------------")
+		name := r.FormValue("name")
+		name = strings.TrimPrefix(name, "https://www.youtube.com/")
+		// /watch?v=dj_rapBEOgE
+		http.Redirect(w, r, name, http.StatusFound)
+	default:
+		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+	}
+}
+
+//http://localhost:8080/watch?v=LWEBcN2o7Pc
 func stream(w http.ResponseWriter, r *http.Request) {
 	v := r.URL.Query().Get("v")
 	if v == "" {
@@ -25,6 +45,8 @@ func stream(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "use format /watch?v=...")
 		return
 	}
+	fmt.Println("v = -----------")
+	fmt.Println(v)
 
 	err := downloadVideoAndExtractAudio(v, w)
 	if err != nil {
