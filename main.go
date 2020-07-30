@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func main() {https://www.youtube.com/watch?v=hQApf_JdxQk
+func main() {
 	listenAddr := os.Getenv("LISTEN_ADDR")
 	addr := listenAddr + `:` + os.Getenv("PORT")
 	http.HandleFunc("/watch", stream)
